@@ -47,29 +47,10 @@ export class AppComponent implements OnInit {
       };
     });
 
-    let tree = this.myTransform(this.family);
+    let tree = this.transformToTree(this.family);
     console.log({ tree });
     this.familytree = tree;
   }
-
-  // getById(tree: Node<Person>[], id: number): Node<Person> | null {
-  //   var len = tree.length;
-  //   for (var i = 0; i < len; i++) {
-  //     if (tree[i].value.id === id) {
-  //       return tree[i];
-  //     }
-  //   }
-
-  //   for (var i = 0; i < len; i++) {
-  //     if (tree[i].children) {
-  //       var node = this.getById(tree[i].children, id);
-  //       if (node) {
-  //         return node;
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
 
   getByUniqueKey(tree: Node<Person>[], key: string, value: any): Node<Person> | null {
     var len = tree.length;
@@ -99,26 +80,14 @@ export class AppComponent implements OnInit {
     }
     return -1;
   }
-  // indexInTree(tree: Node<Person>[], id: number): number {
-  //   var len = tree.length;
-  //   for (var i = 0; i < len; i++) {
-  //     if (tree[i].value.id === id) {
-  //       return i;
-  //     }
-  //   }
-  //   return -1;
-  // }
 
   removeFromTree(tree: Node<Person>[], id: number): Node<Person> | null {
-    //var node = this.getById(tree, id);
     var node = this.getByUniqueKey(tree, 'id', id);
     if (node) {
       if (node.value.parent) {
-        // var parent = this.getById(tree, node.value.parent);
         var parent = this.getByUniqueKey(tree, 'id', node.value.parent);
         if (parent && parent.children) {
           var index = this.indexInTree(parent.children, 'id', id);
-          //var index = this.indexInTree(parent.children, id);
           if (index != -1) {
             return parent.children.splice(index, 1)[0];
           }
@@ -126,13 +95,12 @@ export class AppComponent implements OnInit {
       }
 
       var index = this.indexInTree(tree, 'id', id);
-      //var index = this.indexInTree(tree, id);
       return tree.splice(index, 1)[0];
     }
     return null;
   }
 
-  myTransform(array: Node<Person>[]): Node<Person>[] {
+  transformToTree(array: Node<Person>[]): Node<Person>[] {
     console.log("here");
     var tree = array.concat([]);
     var len = array.length;
@@ -143,7 +111,6 @@ export class AppComponent implements OnInit {
       ) {
         var objToMove = this.removeFromTree(tree, array[i].value.id);
         if (objToMove) {
-          //var parent = this.getById(tree, objToMove.value.parent);
           var parent = this.getByUniqueKey(tree, 'id', objToMove.value.parent);
           if (parent) {
             if (!parent.children) {

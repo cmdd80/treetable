@@ -11,9 +11,10 @@ import { HttpClientModule } from "@angular/common/http"; //HttpClientModule dovr
 import { AppComponent } from "./app.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatFormFieldModule } from '@angular/material';
+import { RealtableComponent } from './realtable/realtable.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, RealtableComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -27,6 +28,6 @@ import { MatFormFieldModule } from '@angular/material';
     HttpClientModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [RealtableComponent]
 })
 export class AppModule {}

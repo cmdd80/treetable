@@ -12,6 +12,7 @@
     "importHelpers": true,
     "target": "es5",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types"
     ],

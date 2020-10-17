@@ -1,0 +1,22 @@
+<div style="text-align:center">
+  <h1>
+    Devices
+  </h1>
+</div>
+<!-- <mat-form-field class="example-form-field">
+  <mat-label>Nome</mat-label>
+  <input matInput type="text" [(ngModel)]="query" (change)="onSearch()">
+  <button mat-button *ngIf="query" matSuffix mat-icon-button aria-label="Clear" (click)="query=''">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-form-field> -->
+<div>
+  <treetable  
+  #treetable
+  [options]="options"
+  [tree]="devicesTree"
+  (nodeClicked)="logToggledNode($event)"
+  (rowClicked)="onRowClicked($event)"
+  >
+</treetable>
+</div>
