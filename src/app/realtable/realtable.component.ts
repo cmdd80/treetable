@@ -1,12 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import * as data from "../../assets/json/devices.json";
 import { Device } from "../model/device";
-import { Node } from "ng-material-treetable";
-import {
-  CustomColumnOrder,
-  Options,
-} from "ng-material-treetable/src/app/treetable/models";
+import { Node, Options } from "ng-material-treetable";
 
+import { CustomColumnOrder } from "ng-material-treetable/src/app/treetable/models";
 
 const COLUMNS = [
   { name: "Friendly name", value: "friendlyName", selected: true },
@@ -29,10 +26,16 @@ const COLUMNS = [
   styleUrls: ["./realtable.component.css"],
 })
 export class RealtableComponent implements OnInit {
+  //@ViewChild(TreetableModule) treetable: any;
+  @ViewChild("treetable") treetable: any;
+  queryComune: string;
+  queryMAC: string;
+
   devices: Device[] = (data as any).default.devices;
   devicesArr: Device[];
   deviceFlatObj: any;
   devicesTree: Node<Device>[];
+  devicesOriginalTree: Node<Device>[];
   customColumns: CustomColumnOrder<Device>[];
   options: Options<Device>;
 
@@ -44,12 +47,21 @@ export class RealtableComponent implements OnInit {
       key: column.value,
       title: column.name,
     })) as CustomColumnOrder<Device>[];
-    this.customColumns.push({ key: "id", title: "Chiave" });  //Aggiunti io a mano nel set di test
+    this.customColumns.push({ key: "id", title: "Chiave" }); //Aggiunti io a mano nel set di test
     this.customColumns.push({ key: "parent", title: "Genitore" }); //Aggiunti io a mano nel set di test
 
+    //Set table data
+    this.options = {
+      customColumnOrder: this.customColumns,
+    };
+
+    this._loadTreeTable(this.devices);
+  }
+
+  _loadTreeTable(devices: Device[]) {
     // funzione che prepara l'array piatto e lo trasforma in un oggetto pronto per esser gerarchizzato
-    this.deviceFlatObj = this.prepareData(
-      this.devices,  //FIXME: se gli arriva un array vuoto schianta, bisognerebbe fargli mostrare almeno l'intestazione della tabella
+    const deviceFlatObj = this.prepareData(
+      devices, //FIXME: se gli arriva un array vuoto schianta, bisognerebbe fargli mostrare almeno l'intestazione della tabella
       this.customColumns.map((column) => column.key)
     ).map((device: Device) => {
       return {
@@ -59,19 +71,13 @@ export class RealtableComponent implements OnInit {
     });
 
     //creazione della gerarchia
-    let tree = this.transformToTree(this.deviceFlatObj);
-
-    //Set table data
-    this.options = {
-      customColumnOrder: this.customColumns,
-    };
+    let tree = this.transformToTree(deviceFlatObj);
     this.devicesTree = tree;
   }
 
   prepareData(devices: Device[], allowedColumns: string[]): Device[] {
     //appiattisco il json
     let flattenedDevices = devices.map((device) => this.flattenObject(device));
-
     //tronco alle sole colonne richieste
     let truncatedDevices = flattenedDevices.map((device) => {
       const filtered = Object.keys(device)
@@ -92,8 +98,14 @@ export class RealtableComponent implements OnInit {
         ? intersection
         : [intersection];
 
-      const keysToAdd = intersection.reduce((obj, key) => ((obj[key] = null), obj), {});
-      truncatedDevices = truncatedDevices.map((obj) => ({ ...obj, ...keysToAdd }));
+      const keysToAdd = intersection.reduce(
+        (obj, key) => ((obj[key] = null), obj),
+        {}
+      );
+      truncatedDevices = truncatedDevices.map((obj) => ({
+        ...obj,
+        ...keysToAdd,
+      }));
     }
 
     return truncatedDevices;
@@ -205,4 +217,70 @@ export class RealtableComponent implements OnInit {
   logToggledNode(node: Node<Device>): void {
     console.log(node);
   }
+
+  onSearch(key: string) {
+    let query = key === "macAddress" ? this.queryMAC : this.queryComune;
+    //this.treetable.filterData(query, key);
+
+    if (query === "") {
+      //FIXME:
+      this.devicesTree = this.treetable.originalTree;
+      this.treetable._onChange();
+      this.treetable.expandAll();
+      return;
+    }
+
+    const filteredDevices = this.devices.filter(
+      (device) => device[key] === query
+    );
+    const ancestors = this.findAncestors([...filteredDevices]);
+    const descendants = this.findDescendants([...filteredDevices]);
+    console.log({ ancestors, descendants });
+
+    this._loadTreeTable(
+      [...ancestors, ...descendants].filter(
+        (v, i, a) => a.findIndex((t) => t.id === v.id) === i  //Rimuove i duplicati
+      )
+    );
+  }
+
+  findAncestors(filteredDevices: Device[]): Device[] {
+    for (const device of filteredDevices) {
+      if (
+        filteredDevices.filter((el) => device.parent === el.id).length === 0
+      ) {
+        let parent = this.devices.find((el) => device.parent === el.id);
+        if (parent) {
+          filteredDevices.push(parent);
+          this.findAncestors(filteredDevices);
+        }
+      } else {
+        //filteredDevices.splice(filteredDevices.findIndex(v => v.id === device.id), 1);
+      }
+    }
+    return filteredDevices;
+  }
+
+  findDescendants(filteredDevices: Device[]): Device[] {
+    for (const device of filteredDevices) {
+      if (
+        filteredDevices.filter((el) => device.id === el.parent).length === 0
+      ) {
+        let descendants = this.devices.filter((el) => device.id === el.parent);
+        descendants = Array.isArray(descendants) ? descendants : [descendants];
+        if (descendants.length) {
+          descendants.forEach((descendant) => {
+            if (
+              !filteredDevices.find((device) => device.id === descendant.id)
+            ) {
+              filteredDevices.push(descendant);
+            }
+          });
+        }
+      }
+    }
+    return filteredDevices;
+  }
+
+  onRowClicked() {}
 }
