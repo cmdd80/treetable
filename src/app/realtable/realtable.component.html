@@ -4,32 +4,71 @@
 <div class="panel">
   <mat-form-field class="example-form-field">
     <mat-label>Comune</mat-label>
-    <input matInput type="text" [(ngModel)]="queryComune" (change)="onSearch('comune.nome')" />
+    <input
+      matInput
+      type="text"
+      [(ngModel)]="queryComune"
+      (change)="onSearch('comune.nome', queryComune)"
+    />
     <button
       mat-button
       *ngIf="queryComune"
       matSuffix
       mat-icon-button
       aria-label="Clear"
-      (click)="queryComune = ''; onSearch('comune.nome')"
+      (click)="queryComune = ''; onSearch('comune.nome', queryComune)"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field class="example-form-field">
+    <mat-label>Friendly Name</mat-label>
+    <input
+      matInput
+      type="text"
+      [(ngModel)]="queryName"
+      (change)="onSearch('friendlyName', queryName)"
+    />
+    <button
+      mat-button
+      *ngIf="queryName"
+      matSuffix
+      mat-icon-button
+      aria-label="Clear"
+      (click)="queryName = ''; onSearch('friendlyName', queryName)"
     >
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
   <mat-form-field class="example-form-field">
     <mat-label>MAC</mat-label>
-    <input matInput type="text" [(ngModel)]="queryMAC" (change)="onSearch('macAddress')" />
+    <input
+      matInput
+      type="text"
+      [(ngModel)]="queryMAC"
+      (change)="onSearch('macAddress', queryMAC)"
+    />
     <button
       mat-button
       *ngIf="queryMAC"
       matSuffix
       mat-icon-button
       aria-label="Clear"
-      (click)="queryMAC = ''; onSearch('macAddress')"
+      (click)="queryMAC = ''; onSearch('macAddress', queryMAC)"
     >
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
+  <div>Tipo di gerarchia</div>
+  <mat-radio-group class="radio-group" [(ngModel)]="selectedHierarchy">
+    <mat-radio-button
+    class="radio-button"
+      *ngFor="let hierarchy of hierarchies"
+      [value]="hierarchy.type"
+    >
+      {{ hierarchy.title }}
+    </mat-radio-button>
+  </mat-radio-group>
   <treetable
     #treetable
     [options]="options"

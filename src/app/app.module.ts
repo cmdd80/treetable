@@ -7,14 +7,14 @@ import { MatButtonModule } from "@angular/material/button";
 import { FormsModule } from "@angular/forms";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { HttpClientModule } from "@angular/common/http"; //HttpClientModule dovrebbe già esserci
+import {MatRadioModule} from '@angular/material/radio';
 
-import { AppComponent } from "./app.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatFormFieldModule } from '@angular/material';
 import { RealtableComponent } from './realtable/realtable.component';
 
 @NgModule({
-  declarations: [AppComponent, RealtableComponent],
+  declarations: [RealtableComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -22,6 +22,7 @@ import { RealtableComponent } from './realtable/realtable.component';
     FormsModule,
     MatIconModule,
     MatButtonModule,
+    MatRadioModule,
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
